@@ -1,10 +1,13 @@
 using Errands.Users.Domain.Commands;
+using Errands.Users.Domain.Config;
 using Errands.Users.Domain.Queries;
 using FireRepository;
 using Google.Cloud.Firestore;
+using JwtFactory;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +37,26 @@ namespace Errands.Users.Api
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers(options => options.Filters.Add(new ExceptionFilter()))
+              .ConfigureApiBehaviorOptions(options =>
+              {
+                  options.InvalidModelStateResponseFactory = HandleModelStateError;
+              });
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddJsonOptions(jsonOptions =>
+                {
+                    jsonOptions.JsonSerializerOptions.IgnoreNullValues = true;
+                });
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy => policy.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin());
+            });
+            services.AddHttpContextAccessor();
+            services.AddLogging(config =>
+            {
+                //TO DO: add app-insights
+                config.AddConsole();
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Errands.Users.Api", Version = "v1" });
@@ -56,6 +78,9 @@ namespace Errands.Users.Api
                 }.Build();
                 return fireDb;
             });
+            services.AddJwtProvider(Configuration.GetSection(nameof(JwtInfo)).Get<JwtInfo>());
+            services.AddSingleton(p => Configuration.GetSection(nameof(UserPolicy)).Get<UserPolicy>());
+            services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
             services.AddScoped<IAccountQuery, AccountQuery>();
             services.AddScoped<IAccountCommand, AccountCommand>();
         }
@@ -80,6 +105,14 @@ namespace Errands.Users.Api
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private IActionResult HandleModelStateError(ActionContext arg)
+        {
+            string errorMessage = string.Join(" ", arg.ModelState.Values
+                                        .SelectMany(x => x.Errors)
+                                        .Select(x => x.ErrorMessage));
+            return new BadRequestObjectResult(errorMessage);
         }
     }
 }

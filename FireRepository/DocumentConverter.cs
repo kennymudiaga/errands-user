@@ -1,5 +1,6 @@
 ﻿using Google.Cloud.Firestore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
@@ -11,7 +12,11 @@ namespace FireRepository
         {
             var dictionary = document.ToDictionary();
             dictionary.TryAdd("Id", document.Id);
-            var json = JsonSerializer.Serialize(dictionary);            
+            foreach (var pair in dictionary.Where(x=>x.Value is Timestamp).Select(x=> new { x.Key, Value = (Timestamp)x.Value }))
+            {
+                dictionary[pair.Key] = pair.Value.ToDateTime();
+            }
+            var json = JsonSerializer.Serialize(dictionary);
             return JsonSerializer.Deserialize<T>(json);
         }
 

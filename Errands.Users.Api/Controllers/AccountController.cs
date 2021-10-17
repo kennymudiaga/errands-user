@@ -44,5 +44,12 @@ namespace Errands.Users.Api.Controllers
             var login = await accountCommand.SignUp(request);
             return Ok(login);
         }
+
+        [HttpPost("Login"), Produces(typeof(LoginResponse))]
+        public async Task<IActionResult> Login(LoginRequest request)
+        {
+            var login = await accountCommand.Login(request);
+            return Ok(login);
+        }
     }
 }
