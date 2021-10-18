@@ -1,6 +1,8 @@
 using Errands.Users.Domain.Commands;
 using Errands.Users.Domain.Config;
 using Errands.Users.Domain.Queries;
+using Feral.Mailer.Config;
+using Feral.SmtpMailer;
 using FireRepository;
 using Google.Cloud.Firestore;
 using JwtFactory;
@@ -68,7 +70,6 @@ namespace Errands.Users.Api
                 ServiceAccountId = "errandng-users-app@errandng-273e8.iam.gserviceaccount.com",
                 ProjectId = "errandng-273e8",
             }));
-
             services.AddSingleton(p =>
             {
                 var fireDb = new FirestoreDbBuilder()
@@ -78,6 +79,10 @@ namespace Errands.Users.Api
                 }.Build();
                 return fireDb;
             });
+            var smtpCredentials = Configuration.GetSection(nameof(SmtpCredentials)).Get<SmtpCredentials>();
+            var emailConfig = Configuration.GetSection(nameof(EmailTemplateConfig)).Get<EmailTemplateConfig>();
+            emailConfig.Path = Path.Combine(rootPath, emailConfig.Path);
+            services.AddSmtpMailer(smtpCredentials, emailConfig);
             services.AddJwtProvider(Configuration.GetSection(nameof(JwtInfo)).Get<JwtInfo>());
             services.AddSingleton(p => Configuration.GetSection(nameof(UserPolicy)).Get<UserPolicy>());
             services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));

@@ -64,6 +64,14 @@ namespace FireRepository
         public async Task<LoginResponse> SignUp(SignUpRequest model)
         {
             var account = new Account(model);
+            var emailExists = await accountsCollection
+                .WhereEqualTo(nameof(Account.Email), account.Email)
+                .Limit(1).Select(nameof(Account.Email)).GetSnapshotAsync();
+            var usernameExists = await accountsCollection
+                .WhereEqualTo(nameof(Account.Username), account.Username)
+                .Limit(1).Select(nameof(Account.Username)).GetSnapshotAsync();
+            if (emailExists.Any() || usernameExists.Any())
+                throw new BusinessException("Email or username already in use!", model);
             account.SetPassword(HashPassword(account.Email, model.Password));
             var accountDoc = accountsCollection.Document(account.Id);   
             _ = await accountDoc.CreateAsync(account.ToDictionary());
