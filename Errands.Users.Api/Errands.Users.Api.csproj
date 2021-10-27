@@ -7,14 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Secrets\errandng-users-app-service-account.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-    <None Include="Secrets\errandng-users-app-service-account.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="..\.editorconfig" Link=".editorconfig" />    
   </ItemGroup>
 
   <ItemGroup>
