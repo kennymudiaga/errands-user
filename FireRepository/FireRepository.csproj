@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Google.Cloud.Firestore" Version="2.4.0" />
+    <PackageReference Include="JwtFactory" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>

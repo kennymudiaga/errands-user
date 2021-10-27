@@ -7,17 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Content\errandng-users-app-service-account.json" />
+    <None Include="..\.editorconfig" Link=".editorconfig" />    
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-    <None Include="Content\errandng-users-app-service-account.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Feral.Mailer.Smtp" Version="1.0.1" />
     <PackageReference Include="FirebaseAdmin" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
@@ -25,6 +19,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FireRepository\FireRepository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Mail\account_activation.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Mail\password_reset.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
