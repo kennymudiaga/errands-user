@@ -38,7 +38,6 @@ namespace Errands.Users.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers(options => options.Filters.Add(new ExceptionFilter()))
               .ConfigureApiBehaviorOptions(options =>
               {
@@ -63,21 +62,28 @@ namespace Errands.Users.Api
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Errands.Users.Api", Version = "v1" });
             });
-            services.AddSingleton(p => FirebaseAdmin.FirebaseApp.Create(new FirebaseAdmin.AppOptions
-            {
-                Credential = Google.Apis.Auth.OAuth2.GoogleCredential
-               .FromFile(Path.Combine(rootPath, "Content", "errandng-users-app-service-account.json")),
-                ServiceAccountId = "errandng-users-app@errandng-273e8.iam.gserviceaccount.com",
-                ProjectId = "errandng-273e8",
-            }));
+            //services.AddSingleton(p => FirebaseAdmin.FirebaseApp.Create(new FirebaseAdmin.AppOptions
+            //{
+            //    Credential = Google.Apis.Auth.OAuth2.GoogleCredential
+            //   .FromFile(Path.Combine(rootPath, "Content", "errandng-users-app-service-account.json")),
+            //    ServiceAccountId = "errandng-users-app@errandng-273e8.iam.gserviceaccount.com",
+            //    ProjectId = "errandng-273e8",
+            //}));
             services.AddSingleton(p =>
             {
-                var fireDb = new FirestoreDbBuilder()
+                var credentialPath = Environment.GetEnvironmentVariable("google-json");
+                if (string.IsNullOrEmpty(credentialPath))
                 {
-                    CredentialsPath = Path.Combine(rootPath, "Content", "errandng-users-app-service-account.json"),
-                    ProjectId = "errandng-273e8",
-                }.Build();
-                return fireDb;
+                    return FirestoreDb.Create("errandng-273e8");
+                }
+                else
+                {
+                    return new FirestoreDbBuilder()
+                    {
+                        CredentialsPath = credentialPath,
+                        ProjectId = "errandng-273e8",
+                    }.Build();
+                }            
             });
             var smtpCredentials = Configuration.GetSection(nameof(SmtpCredentials)).Get<SmtpCredentials>();
             var emailConfig = Configuration.GetSection(nameof(EmailTemplateConfig)).Get<EmailTemplateConfig>();
