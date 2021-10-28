@@ -24,6 +24,11 @@ using System.Threading.Tasks;
 
 namespace Errands.Users.Api
 {
+    public record GoogleConfig
+    {
+        public string ProjectId { get; set; }
+        public string CredentialPath { get; set; }
+    }
     public class Startup
     {
         private readonly string rootPath;
@@ -69,21 +74,22 @@ namespace Errands.Users.Api
             //    ServiceAccountId = "errandng-users-app@errandng-273e8.iam.gserviceaccount.com",
             //    ProjectId = "errandng-273e8",
             //}));
-            services.AddSingleton(p =>
+            services.AddSingleton(Configuration.GetSection(nameof(GoogleConfig)).Get<GoogleConfig>(););
+            services.AddSingleton(provider =>
             {
-                var credentialPath = Environment.GetEnvironmentVariable("google-json");
-                if (string.IsNullOrEmpty(credentialPath))
+                var google = provider.GetService<GoogleConfig>();
+                if (string.IsNullOrEmpty(google.CredentialPath))
                 {
-                    return FirestoreDb.Create("errandng-273e8");
+                    return FirestoreDb.Create(google.ProjectId);
                 }
                 else
                 {
                     return new FirestoreDbBuilder()
                     {
-                        CredentialsPath = credentialPath,
-                        ProjectId = "errandng-273e8",
+                        CredentialsPath = google.CredentialPath,
+                        ProjectId = google.ProjectId,
                     }.Build();
-                }            
+                }          
             });
             var smtpCredentials = Configuration.GetSection(nameof(SmtpCredentials)).Get<SmtpCredentials>();
             var emailConfig = Configuration.GetSection(nameof(EmailTemplateConfig)).Get<EmailTemplateConfig>();
