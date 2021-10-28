@@ -3,15 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Errands.Users.Api", "Errands.Users.Api\Errands.Users.Api.csproj", "{A6A27B69-D842-4B7C-99DF-D285DAFAFD5D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Errands.Users.Api", "Errands.Users.Api\Errands.Users.Api.csproj", "{A6A27B69-D842-4B7C-99DF-D285DAFAFD5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Errands.Users.Domain", "Errands.Users.Domain\Errands.Users.Domain.csproj", "{D19EDFC9-6315-4C11-A5FD-FDC70D744F92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Errands.Users.Domain", "Errands.Users.Domain\Errands.Users.Domain.csproj", "{D19EDFC9-6315-4C11-A5FD-FDC70D744F92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireRepository", "FireRepository\FireRepository.csproj", "{D15E4167-4F16-46FC-BD9E-86E21A1B579D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireRepository", "FireRepository\FireRepository.csproj", "{D15E4167-4F16-46FC-BD9E-86E21A1B579D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FEC8445F-2E2E-4929-B2FE-9C64E08BC5E4}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
 Global
