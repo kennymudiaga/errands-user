@@ -74,7 +74,7 @@ namespace Errands.Users.Api
             //    ServiceAccountId = "errandng-users-app@errandng-273e8.iam.gserviceaccount.com",
             //    ProjectId = "errandng-273e8",
             //}));
-            services.AddSingleton(Configuration.GetSection(nameof(GoogleConfig)).Get<GoogleConfig>(););
+            services.AddSingleton(Configuration.GetSection(nameof(GoogleConfig)).Get<GoogleConfig>());
             services.AddSingleton(provider =>
             {
                 var google = provider.GetService<GoogleConfig>();
