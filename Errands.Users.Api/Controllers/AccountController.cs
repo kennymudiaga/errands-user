@@ -1,13 +1,15 @@
 ﻿using Errands.Users.Domain.Commands;
 using Errands.Users.Domain.Models;
 using Errands.Users.Domain.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Errands.Users.Api.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
+    [Route("[controller]")]    
     public class AccountController : ControllerBase
     {
         private readonly IAccountQuery accountQuery;
@@ -31,7 +33,7 @@ namespace Errands.Users.Api.Controllers
             var isAvailable = await accountQuery.IsUsernameAvailable(username);
             return Ok(isAvailable);
         }
-        [HttpGet, Produces(typeof(LoginResponse))]
+        [HttpGet, Authorize, Produces(typeof(LoginResponse))]
         public async Task<IActionResult> GetUser(string username)
         {
             var user = await accountQuery.GetUser(username);
@@ -50,6 +52,13 @@ namespace Errands.Users.Api.Controllers
         {
             var login = await accountCommand.Login(request);
             return Ok(login);
+        }
+
+        [HttpPut("Password"), Authorize, Produces(typeof(string))]
+        public async Task<IActionResult> ChangePassword(PasswordChangeRequest request)
+        {
+            var message = await accountCommand.ChangePassword(User.FindFirst(ClaimTypes.Sid)?.Value, request);
+            return Ok(message);
         }
     }
 }

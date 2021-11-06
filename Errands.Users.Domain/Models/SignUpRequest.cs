@@ -7,6 +7,7 @@ namespace Errands.Users.Domain.Models
     {
         [Required, MaxLength(100)]
         public string Name { get; set; }
+        [Required, StringLength(20, MinimumLength = 8)]
         public string Password { get; set; }
         [Required, EmailAddress, StringLength(50)]
         public string Email { get; set; }
