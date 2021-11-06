@@ -49,8 +49,6 @@ namespace FireRepository
                 updates.Add(nameof(Account.LastLogin), user.LastLogin = DateTime.UtcNow);
                 if (user.AccessFailedCount > 0 || user.IsAccountLocked)
                 {
-                    user.IsAccountLocked = false;
-                    user.AccessFailedCount = 0; 
                     updates.Add(nameof(Account.IsAccountLocked), user.IsAccountLocked = false);
                     updates.Add(nameof(Account.AccessFailedCount), user.AccessFailedCount = 0);                    
                 }
@@ -76,6 +74,27 @@ namespace FireRepository
             var accountDoc = accountsCollection.Document(account.Id);   
             _ = await accountDoc.CreateAsync(account.ToDictionary());
             return CreateLogin(account);
+        }
+
+        public async Task<string> ChangePassword(string userId, PasswordChangeRequest model)
+        {
+            var userDoc = accountsCollection.Document(userId);
+            var userSnapShot = await userDoc.GetSnapshotAsync();
+            if (!userSnapShot.Exists) throw new BusinessException("User not found!");
+            var user = userSnapShot.Parse<Account>();
+            if (user.IsAccountLocked && user.LockoutExpiry > DateTime.UtcNow)
+                throw new BusinessException("Your account is temporarily locked. Try again in a few minutes.");
+            if (VerifyPassword(user.Username, user.PasswordHash, model.OldPassword))
+            {
+                user.SetPassword(HashPassword(user.Username, model.NewPassword));
+                user.AccessFailedCount = 0;
+                user.IsAccountLocked = false;
+                user.LockoutExpiry = null;
+                await userDoc.SetAsync(new { user.PasswordHash, user.AccessFailedCount, user.IsAccountLocked, user.LockoutExpiry }, SetOptions.MergeAll);
+                return "Your password has been updated.";
+            }
+            await InvalidateUser(user);
+            return "If you got here, something went wrong.";
         }
 
         public string HashPassword(string username, string password)
